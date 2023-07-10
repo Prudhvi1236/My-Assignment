@@ -1,19 +1,24 @@
-import json
-import subprocess
+def get_value_from_nested_object(obj, key):
+    keys = key.split('/')
+    value = obj
 
-def get_azure_instance_metadata(key=None):
-    command = "az vm show -d --query instanceView -o json"
-    output = subprocess.check_output(command, shell=True).decode('utf-8')
-    data = json.loads(output)
+    for k in keys:
+        if isinstance(value, dict) and k in value:
+            value = value[k]
+        else:
+            return None
 
-    if key:
-        return data.get(key)
-    else:
-        return data
+    return value
 
-# Example usage
-metadata = get_azure_instance_metadata()
+# Examples
+object1 = {"a": {"b": {"c": "d"}}}
+key1 = "a/b/c"
+value1 = get_value_from_nested_object(object1, key1)
+print(value1)  
+# Output: d
 
-# print the metadata as JSON
-formatted_metadata = json.dumps(metadata, indent=4)
-print(formatted_metadata)
+object2 = {"x": {"y": {"z": "a"}}}
+key2 = "x/y/z"
+value2 = get_value_from_nested_object(object2, key2)
+print(value2)  
+# Output: a
